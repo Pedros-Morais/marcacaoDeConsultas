@@ -1,3 +1,10 @@
+# Alunos
+RM550188 / Gustavo Vegi
+Pedro Henrique Silva de Morais / RM98804
+Lucas Rodrigues Delfino/ RM550196
+Luisa Cristina dos Santos Neves/ RM551889
+Gabriel aparecido Cassalho Xavier / RM99794
+
 # Sistema de Agendamento de Consultas Médicas
 
 [![React Native](https://img.shields.io/badge/React%20Native-0.76.7-blue.svg)](https://reactnative.dev/)
