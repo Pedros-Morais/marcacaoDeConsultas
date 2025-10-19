@@ -20,6 +20,7 @@ const Header: React.FC = () => {
           containerStyle={styles.avatar}
         />
         <TextContainer>
+          <BrandName>Pedro Consultas</BrandName>
           <WelcomeText>Bem-vindo(a),</WelcomeText>
           <UserName>{user.name}</UserName>
         </TextContainer>
@@ -55,6 +56,12 @@ const TextContainer = styled.View`
   margin-left: 12px;
 `;
 
+const BrandName = styled.Text`
+  font-size: 12px;
+  color: ${theme.colors.white};
+  opacity: 0.8;
+`;
+ 
 const WelcomeText = styled.Text`
   font-size: 14px;
   color: ${theme.colors.white};

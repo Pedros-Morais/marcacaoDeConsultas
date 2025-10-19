@@ -1,10 +1,11 @@
 // ====== IMPORTS DE DEPENDÊNCIAS E COMPONENTES ======
 import React, { useEffect, useState } from 'react'; // React e hooks para estado e efeitos.
 import styled from 'styled-components/native'; // Permite criar componentes estilizados usando o tema.
-import { FlatList, RefreshControl, TouchableOpacity } from 'react-native'; // Componentes nativos para listas, atualização e botões.
+import { FlatList, RefreshControl, TouchableOpacity, Animated } from 'react-native'; // Componentes nativos para listas, atualização, botões e animações.
 import { Button, Icon } from 'react-native-elements'; // Botões e ícones prontos para uso.
 import { FontAwesome } from '@expo/vector-icons'; // Ícones extras para enriquecer a interface.
-import { HeaderContainer, HeaderTitle } from '../components/Header'; // Componentes personalizados para o cabeçalho.
+
+import Header from '../components/Header'; // Cabeçalho personalizado com branding.
 import theme from '../styles/theme'; // Importa o tema visual padronizado.
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'; // Tipagem para navegação entre telas.
 import AsyncStorage from '@react-native-async-storage/async-storage'; // Permite salvar e recuperar dados localmente.
@@ -47,6 +48,34 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   // Estado para controlar o refresh da lista
   const [refreshing, setRefreshing] = useState(false);
+  // Animações de entrada (fade e slide)
+  const fadeAnim = React.useRef(new Animated.Value(0)).current;
+  const translateY = React.useRef(new Animated.Value(20)).current;
+
+  const animateIn = () => {
+    fadeAnim.setValue(0);
+    translateY.setValue(20);
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 450,
+        useNativeDriver: true,
+      }),
+      Animated.timing(translateY, {
+        toValue: 0,
+        duration: 450,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  };
+
+   // Carrega as consultas toda vez que a tela recebe foco
+   useFocusEffect(
+     React.useCallback(() => {
+       loadAppointments();
+       animateIn();
+     }, [])
+   );
 
   // Função para carregar consultas do AsyncStorage
   const loadAppointments = async () => {
@@ -117,44 +146,41 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   // ====== RETORNO DA INTERFACE VISUAL DA TELA ======
   return (
     <Container>
-      {/* Cabeçalho da tela */}
-      <HeaderContainer>
-        <HeaderTitle>Minhas Consultas</HeaderTitle>
-      </HeaderContainer>
+      {/* Cabeçalho com branding */}
+      <Header />
+<Content style={{ opacity: fadeAnim, transform: [{ translateY }] }}>
+         {/* Botão para agendar nova consulta */}
+         <Button
+           title="Agendar Nova Consulta"
+           icon={
+             <FontAwesome
+               name="calendar-plus-o"
+               size={20}
+               color="white"
+               style={{ marginRight: 8 }}
+             />
+           }
+           buttonStyle={{
+             backgroundColor: theme.colors.primary,
+             borderRadius: 8,
+             padding: 12,
+             marginBottom: theme.spacing.medium
+           }}
+           onPress={() => navigation.navigate('CreateAppointment')}
+         />
 
-      <Content>
-        {/* Botão para agendar nova consulta */}
-        <Button
-          title="Agendar Nova Consulta"
-          icon={
-            <FontAwesome
-              name="calendar-plus-o"
-              size={20}
-              color="white"
-              style={{ marginRight: 8 }}
-            />
-          }
-          buttonStyle={{
-            backgroundColor: theme.colors.primary,
-            borderRadius: 8,
-            padding: 12,
-            marginBottom: theme.spacing.medium
-          }}
-          onPress={() => navigation.navigate('CreateAppointment')}
-        />
-
-        {/* Lista de consultas agendadas */}
-        <AppointmentList
-          data={appointments}
-          keyExtractor={(item: Appointment) => item.id}
-          renderItem={renderAppointment}
-          refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-          }
-          ListEmptyComponent={
-            <EmptyText>Nenhuma consulta agendada</EmptyText>
-          }
-        />
+         {/* Lista de consultas agendadas */}
+         <AppointmentList
+           data={appointments}
+           keyExtractor={(item: Appointment) => item.id}
+           renderItem={renderAppointment}
+           refreshControl={
+             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+           }
+           ListEmptyComponent={
+             <EmptyText>Nenhuma consulta agendada</EmptyText>
+           }
+         />
       </Content>
     </Container>
   );
@@ -167,7 +193,7 @@ const Container = styled.View`
 `;
 // Container principal da tela
 
-const Content = styled.View`
+const Content = styled(Animated.View)`
   flex: 1;
   padding: ${theme.spacing.medium}px;
 `;

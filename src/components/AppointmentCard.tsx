@@ -1,13 +1,11 @@
 
-// Importação de dependências, hooks e componentes visuais
 import React from 'react';
 import styled from 'styled-components/native';
-import { ViewStyle } from 'react-native';
+import { ViewStyle, TouchableOpacity } from 'react-native';
 import { Card, Text, Avatar } from 'react-native-elements';
 import theme from '../styles/theme';
+import globalStyles from '../styles/globalStyles';
 
-
-// Tipagem das props do card de consulta
 interface AppointmentCardProps {
   doctorName: string;
   date: string;
@@ -18,8 +16,6 @@ interface AppointmentCardProps {
   style?: ViewStyle;
 }
 
-
-// Card visual para exibir informações de uma consulta
 const AppointmentCard: React.FC<AppointmentCardProps> = ({
   doctorName,
   date,
@@ -29,9 +25,6 @@ const AppointmentCard: React.FC<AppointmentCardProps> = ({
   onPress,
   style,
 }) => {
-  /**
-   * Retorna cor do status da consulta
-   */
   const getStatusColor = () => {
     switch (status) {
       case 'confirmed':
@@ -43,150 +36,137 @@ const AppointmentCard: React.FC<AppointmentCardProps> = ({
     }
   };
 
-  /**
-   * Renderização principal do card de consulta
-   * Exibe informações do médico, data/hora, especialidade e status
-   */
+  const getStatusText = () => {
+    switch (status) {
+      case 'confirmed':
+        return 'Confirmed';
+      case 'cancelled':
+        return 'Cancelled';
+      default:
+        return 'Pending';
+    }
+  };
+
   return (
-    <Card containerStyle={[styles.card, style]}>
-      <CardContent>
-        {/* Informações do médico */}
-        <DoctorInfo>
-          <Avatar
-            size="medium"
-            rounded
-            source={{ uri: `https://randomuser.me/api/portraits/men/${Math.floor(Math.random() * 10)}.jpg` }}
-            containerStyle={styles.avatar}
-          />
-          <TextContainer>
+    <TouchableOpacity activeOpacity={0.7} onPress={onPress}>
+      <CardContainer style={style}>
+        <CardHeader>
+          <AvatarContainer>
+            <Avatar
+              size="small"
+              rounded
+              source={{ uri: `https://randomuser.me/api/portraits/men/${Math.floor(Math.random() * 10)}.jpg` }}
+              containerStyle={styles.avatar}
+            />
+          </AvatarContainer>
+          <HeaderInfo>
             <DoctorName>{doctorName}</DoctorName>
             <Specialty>{specialty}</Specialty>
-          </TextContainer>
-        </DoctorInfo>
-
-        {/* Informações de data/hora da consulta */}
-        <AppointmentInfo>
-          <InfoRow>
-            <InfoLabel>Data:</InfoLabel>
-            <InfoValue>{date}</InfoValue>
-          </InfoRow>
-          <InfoRow>
-            <InfoLabel>Horário:</InfoLabel>
-            <InfoValue>{time}</InfoValue>
-          </InfoRow>
-        </AppointmentInfo>
-
-        {/* Status visual da consulta */}
-        <StatusContainer>
-          <StatusDot color={getStatusColor()} />
-          <StatusText color={getStatusColor()}>
-            {status === 'confirmed' ? 'Confirmada' : status === 'cancelled' ? 'Cancelada' : 'Pendente'}
-          </StatusText>
-        </StatusContainer>
-      </CardContent>
-    </Card>
+          </HeaderInfo>
+          <StatusBadge color={getStatusColor()}>
+            <StatusText>{getStatusText()}</StatusText>
+          </StatusBadge>
+        </CardHeader>
+        
+        <CardDivider />
+        
+        <CardFooter>
+          <DateTimeContainer>
+            <DateTimeLabel>Date</DateTimeLabel>
+            <DateTimeValue>{date}</DateTimeValue>
+          </DateTimeContainer>
+          <DateTimeContainer>
+            <DateTimeLabel>Time</DateTimeLabel>
+            <DateTimeValue>{time}</DateTimeValue>
+          </DateTimeContainer>
+        </CardFooter>
+      </CardContainer>
+    </TouchableOpacity>
   );
 };
 
-
-// Estilos dos componentes visuais do card
 const styles = {
-  card: {
-    borderRadius: 10, // Borda arredondada do card
-    marginHorizontal: 0,
-    marginVertical: 8,
-    padding: 15,
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-  },
   avatar: {
-    backgroundColor: theme.colors.primary, // Cor de fundo do avatar
+    backgroundColor: theme.colors.surface,
   },
 };
 
-
-// Container do conteúdo do card
-const CardContent = styled.View`
-  padding: 10px;
+// Styled components
+const CardContainer = styled.View`
+  background-color: ${theme.colors.white};
+  border-radius: ${theme.borderRadius.medium}px;
+  margin-vertical: ${theme.spacing.small}px;
+  padding: ${theme.spacing.medium}px;
+  shadow-color: ${theme.colors.shadow};
+  shadow-offset: 0px 2px;
+  shadow-opacity: 0.1;
+  shadow-radius: 3px;
+  elevation: 1;
 `;
 
-// Informações do médico
-const DoctorInfo = styled.View`
+const CardHeader = styled.View`
   flex-direction: row;
   align-items: center;
-  margin-bottom: 15px;
 `;
 
-// Container dos textos do médico
-const TextContainer = styled.View`
-  margin-left: 15px;
+const AvatarContainer = styled.View`
+  margin-right: ${theme.spacing.small}px;
 `;
 
-// Nome do médico
+const HeaderInfo = styled.View`
+  flex: 1;
+`;
+
 const DoctorName = styled.Text`
-  font-size: 18px;
-  font-weight: bold;
+  font-size: ${theme.typography.subtitle.fontSize}px;
+  font-weight: 500;
   color: ${theme.colors.text};
+  margin-bottom: 2px;
 `;
 
-// Especialidade do médico
 const Specialty = styled.Text`
-  font-size: 14px;
-  color: ${theme.colors.text};
-  opacity: 0.7;
+  font-size: ${theme.typography.caption.fontSize}px;
+  color: ${theme.colors.textSecondary};
 `;
 
-// Informações de data/hora da consulta
-const AppointmentInfo = styled.View`
-  margin-bottom: 15px;
+const StatusBadge = styled.View<{ color: string }>`
+  background-color: ${props => props.color}20;
+  padding-horizontal: ${theme.spacing.small}px;
+  padding-vertical: ${theme.spacing.xs}px;
+  border-radius: ${theme.borderRadius.full}px;
 `;
 
-// Linha de informação
-const InfoRow = styled.View`
+const StatusText = styled.Text`
+  font-size: 12px;
+  color: ${props => props.color || theme.colors.primary};
+  font-weight: 500;
+`;
+
+const CardDivider = styled.View`
+  height: 1px;
+  background-color: ${theme.colors.border};
+  margin-vertical: ${theme.spacing.medium}px;
+`;
+
+const CardFooter = styled.View`
   flex-direction: row;
   justify-content: space-between;
-  margin-bottom: 5px;
 `;
 
-// Label de informação
-const InfoLabel = styled.Text`
-  font-size: 14px;
-  color: ${theme.colors.text};
-  opacity: 0.7;
+const DateTimeContainer = styled.View`
+  align-items: flex-start;
 `;
 
-// Valor de informação
-const InfoValue = styled.Text`
-  font-size: 14px;
+const DateTimeLabel = styled.Text`
+  font-size: ${theme.typography.caption.fontSize}px;
+  color: ${theme.colors.textSecondary};
+  margin-bottom: 4px;
+`;
+
+const DateTimeValue = styled.Text`
+  font-size: ${theme.typography.body.fontSize}px;
   color: ${theme.colors.text};
   font-weight: 500;
 `;
 
-// Container do status visual
-const StatusContainer = styled.View`
-  flex-direction: row;
-  align-items: center;
-  margin-top: 10px;
-`;
-
-// Ponto colorido do status
-const StatusDot = styled.View<{ color: string }>`
-  width: 8px;
-  height: 8px;
-  border-radius: 4px;
-  background-color: ${props => props.color};
-  margin-right: 8px;
-`;
-
-// Texto do status
-const StatusText = styled.Text<{ color: string }>`
-  font-size: 14px;
-  color: ${props => props.color};
-  font-weight: 500;
-`;
-
-// Exporta o componente principal do card de consulta
-export default AppointmentCard; 
+export default AppointmentCard;

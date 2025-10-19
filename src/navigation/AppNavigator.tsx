@@ -3,6 +3,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useAuth } from '../contexts/AuthContext';
 import { RootStackParamList } from '../types/navigation';
+import theme from '../styles/theme';
 
 // Screens
 import LoginScreen from '../screens/LoginScreen';
@@ -17,87 +18,108 @@ import DoctorDashboardScreen from '../screens/DoctorDashboardScreen';
 import PatientDashboardScreen from '../screens/PatientDashboardScreen';
 import NotificationsScreen from '../screens/NotificationsScreen';
 
-// Instancia o stack navigator tipado
+// Stack navigator instance
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
-// Componente principal responsável por gerenciar as rotas do app
+// Common screen options for a minimalist UI
+const screenOptions = {
+  headerShown: true,
+  headerTitle: 'Pedro Consultas',
+  headerStyle: {
+    backgroundColor: theme.colors.background,
+    elevation: 0,
+    shadowOpacity: 0,
+    borderBottomWidth: 0,
+  },
+  headerTintColor: theme.colors.primary,
+  headerBackTitleVisible: false,
+  headerShadowVisible: false,
+  contentStyle: {
+    backgroundColor: theme.colors.background,
+  },
+};
+
+// Auth screen options (login/register)
+const authScreenOptions = {
+  ...screenOptions,
+  headerShown: false,
+};
+
+// Main app navigator component
 export const AppNavigator: React.FC = () => {
-  // Obtém usuário e estado de carregamento do contexto de autenticação
   const { user, loading } = useAuth();
 
-  // Exibe nada (ou um loading) enquanto verifica autenticação
+  // Show loading state
   if (loading) {
-    return null; // Ou um componente de loading
+    return null; // Or a minimal loading component
   }
 
-  // Renderiza a navegação principal
   return (
     <NavigationContainer>
       <Stack.Navigator
-        screenOptions={{
-          headerShown: false, // Esconde o cabeçalho padrão
-        }}
+        screenOptions={screenOptions}
       >
-        {/* Se não houver usuário, mostra rotas públicas */}
         {!user ? (
+          // Auth routes
           <>
-            <Stack.Screen name="Login" component={LoginScreen} />
-            <Stack.Screen name="Register" component={RegisterScreen} />
+            <Stack.Screen 
+              name="Login" 
+              component={LoginScreen} 
+              options={authScreenOptions}
+            />
+            <Stack.Screen 
+              name="Register" 
+              component={RegisterScreen} 
+              options={authScreenOptions}
+            />
           </>
         ) : (
+          // Authenticated routes
           <>
-            {/* Rotas específicas por tipo de usuário */}
+            {/* Role-specific dashboard as initial screen */}
             {user.role === 'admin' && (
               <Stack.Screen 
                 name="AdminDashboard" 
                 component={AdminDashboardScreen}
-                options={{ title: 'Painel Administrativo' }}
               />
             )}
             {user.role === 'doctor' && (
               <Stack.Screen 
                 name="DoctorDashboard" 
                 component={DoctorDashboardScreen}
-                options={{ title: 'Painel do Médico' }}
               />
             )}
             {user.role === 'patient' && (
               <Stack.Screen 
                 name="PatientDashboard" 
                 component={PatientDashboardScreen}
-                options={{ title: 'Painel do Paciente' }}
               />
             )}
-            {/* Rotas comuns para todos os usuários autenticados */}
+            
+            {/* Common routes for all authenticated users */}
             <Stack.Screen 
               name="Home" 
               component={HomeScreen}
-              options={{ title: 'Início' }}
             />
             <Stack.Screen 
               name="CreateAppointment" 
               component={CreateAppointmentScreen}
-              options={{ title: 'Agendar Consulta' }}
             />
             <Stack.Screen 
               name="Profile" 
               component={ProfileScreen}
-              options={{ title: 'Perfil' }}
             />
             <Stack.Screen 
               name="EditProfile" 
               component={EditProfileScreen}
-              options={{ title: 'Editar Perfil' }}
             />
             <Stack.Screen 
               name="Notifications" 
               component={NotificationsScreen}
-              options={{ title: 'Notificações' }}
             />
             <Stack.Screen 
               name="Settings" 
               component={SettingsScreen}
-              options={{ title: 'Configurações' }}
             />
           </>
         )}

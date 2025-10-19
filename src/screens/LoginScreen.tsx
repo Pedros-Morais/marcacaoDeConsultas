@@ -52,7 +52,7 @@ const LoginScreen: React.FC = () => {
   return (
     <Container>
       {/* Título do app */}
-      <Title>App Marcação de Consultas</Title>
+      <Title>Pedro Consultas</Title>
       
       {/* Campo de email */}
       <Input
@@ -164,4 +164,4 @@ const ErrorText = styled.Text`
 `;
 
 // Exporta o componente principal da tela de login
-export default LoginScreen; 
+export default LoginScreen;
